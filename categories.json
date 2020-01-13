@@ -1,0 +1,23 @@
+{
+  "categoryMapper": {
+    "Merchandise": {
+      "NORDSTROM#1": "Clothes",
+      "SAFEWAY #1143": "Groceries / Home",
+      "PCC - FREMONT": "Groceries / Home",
+      "FRED-MEYER #0608": "Groceries / Home"
+    },
+    "Other Travel": {
+      "LYFT": "Local Transportation"
+    },
+    "Dining": "Eating Out"
+  },
+  "internalCategories": [
+    "Clothes",
+    "Groceries / Home",
+    "Local Transportation",
+    "Travel",
+    "Bills",
+    "Eating Out",
+    "Other"
+  ]
+}
