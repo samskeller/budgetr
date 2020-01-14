@@ -12,12 +12,30 @@ def load_categories():
         logging.exception("Cannot read the categories file")
         sys.exit()
 
+def determine_category(row, possibleCategories):
+    category_options_string = "\n".join([f"{num}: {category}" for num, category in enumerate(possibleCategories, 1)])
+    user_input_options = [str(i) for i in range(1, len(possibleCategories) + 1)]
+
+    prompt = f"\nPick a category for {row['Description']}:\n{category_options_string}\n\n"
+    user_selected_category = input(prompt)
+    while user_selected_category not in user_input_options:
+        print("Sorry, that's not an option. Try again!")
+        user_selected_category = input(prompt)
+
+    return possibleCategories[int(user_selected_category) - 1]
+
 def bucket_transactions(csv_reader):
     categories_blob = load_categories()
 
     totals = {category: 0 for category in categories_blob["internalCategories"]}
     category_lookup = categories_blob["categoryMapper"]
     for row in csv_reader:
+        if row["Credit"]:
+            if row["Description"] == "CAPITAL ONE AUTOPAY PYMT":
+                continue
+            # TODO: Ask the user what to do here
+            continue
+
         try:
             capital_one_category = category_lookup[row["Category"]]
             if isinstance(capital_one_category, str):
@@ -25,14 +43,8 @@ def bucket_transactions(csv_reader):
             else:
                 category = capital_one_category[row["Description"]]
         except KeyError:
-            # TODO: Can't find category, later attempt to create
+            category = determine_category(row, categories_blob["internalCategories"])
             category = "Other"
-
-        if row["Credit"]:
-            if row["Description"] == "CAPITAL ONE AUTOPAY PYMT":
-                continue
-            # TODO: Ask the user what to do here
-            continue
 
         totals[category] += float(row["Debit"])
 
