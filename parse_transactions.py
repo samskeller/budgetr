@@ -102,25 +102,43 @@ class TransactionsFileType(argparse.FileType):
 def parse_args():
     parser = argparse.ArgumentParser(description="Create a budget")
     parser.add_argument("month_csv", help="Input CSV file with transactions for a month", type=TransactionsFileType())
+    parser.add_argument("totals_file", help="Monthly budget totals", type=argparse.FileType('r+'))
     return parser.parse_args()
 
 def main():
     parsed_args = parse_args()
 
-    date = get_date_from_filename(parsed_args.month_csv.name)
-    headers = [h.strip() for h in parsed_args.month_csv.readline().split(',')]
-    csv_reader = csv.DictReader(parsed_args.month_csv, fieldnames=headers)
+    with parsed_args.month_csv as month_csv:
+        date = get_date_from_filename(parsed_args.month_csv.name)
+        headers = [h.strip() for h in parsed_args.month_csv.readline().split(',')]
+        csv_reader = csv.DictReader(parsed_args.month_csv, fieldnames=headers)
 
-    totals, transactions = bucket_transactions(csv_reader)
-    output = {"totals": totals, "transactions": transactions}
+        monthly_totals, transactions = bucket_transactions(csv_reader)
 
+    month_string = date.strftime('%Y-%m')
     try:
-        output_filename = f"{date.strftime('%Y-%m')}-output.json"
+        output_filename = f"{month_string}-output.json"
         with open(output_filename, 'w') as output_file:
+            output = {"totals": monthly_totals, "transactions": transactions}
             output_file.write(json.dumps(output, indent=2, sort_keys=True))
     except IOError:
         logging.exception("Cannot write the output file")
         sys.exit()
+
+    with parsed_args.totals_file as totals_file:
+        totals = json.loads(totals_file.read())
+        totals["months"][month_string] = monthly_totals
+        overall_totals = {}
+        print(totals)
+        for month_string, month in totals["months"].items():
+            for category, amount in month.items():
+                overall_totals[category] = overall_totals.get(category, 0) + amount
+        averages = {category: amount / len(totals["months"]) for category, amount in overall_totals.items()}
+        totals["averages"] = averages
+        totals_file.seek(0)
+        totals_file.write(json.dumps(totals, indent=2, sort_keys=True))
+        totals_file.truncate()
+
 
 if __name__ == '__main__':
     main()
