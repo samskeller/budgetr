@@ -1,15 +1,43 @@
 {
   "categoryMapper": {
+    "Dining": "Eating Out",
+    "Gas/Automotive": {
+      "LAZ PARKING 780107": "Local Transportation"
+    },
+    "Health Care": {
+      "BARTELL DRUG 01-DOWNTOWN": "Groceries / Home"
+    },
+    "Insurance": {
+      "STATE FARM  INSURANCE": "Bills"
+    },
+    "Internet": {
+      "LINODE.COM": "Subscriptions"
+    },
+    "Lodging": "Travel",
     "Merchandise": {
+      "APPLE.COM/US": "Other",
+      "FRED-MEYER #0608": "Groceries / Home",
+      "JOSEPH JEWELRY": "Other",
       "NORDSTROM#1": "Clothes",
-      "SAFEWAY #1143": "Groceries / Home",
       "PCC - FREMONT": "Groceries / Home",
-      "FRED-MEYER #0608": "Groceries / Home"
+      "PORTAGE BAY GOODS": "Other",
+      "SAFEWAY #1143": "Groceries / Home",
+      "STONEWAY HARDWARE": "Groceries / Home",
+      "WAYFAIR*Wayfair": "Groceries / Home"
+    },
+    "Other": {
+      "OVR*O.CO/OVERSTOCK.COM": "Groceries / Home"
+    },
+    "Other Services": {
+      "CNP*THE NEW YORKER": "Subscriptions"
     },
     "Other Travel": {
-      "LYFT": "Local Transportation"
+      "LYFT   *RIDE FRI 5PM": "Local Transportation",
+      "LYFT   *RIDE SUN 7PM": "Local Transportation"
     },
-    "Dining": "Eating Out"
+    "Phone/Cable": {
+      "AT&T*BILL PAYMENT": "Bills"
+    }
   },
   "internalCategories": [
     "Clothes",
@@ -18,6 +46,7 @@
     "Travel",
     "Bills",
     "Eating Out",
+    "Subscriptions",
     "Other"
   ]
 }
