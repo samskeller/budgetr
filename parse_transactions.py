@@ -79,35 +79,40 @@ def bucket_transactions(csv_reader):
 
     return (totals, transactions)
 
-def transaction_file_type(value):
-    date_string = value[:len('2020-01-01')]
-    try:
-        datetime.datetime.strptime(date_string, '%Y-%m-%d')
-    except ValueError:
-        raise argparse.ArgumentTypeError
+def get_date_from_filename(filename):
+    date_string = filename.split('/')[-1][:len('2020-01-01')]
+    return datetime.datetime.strptime(date_string, '%Y-%m-%d')
 
-    return value
+class TransactionsFileType(argparse.FileType):
+    def __init__(self, **kwargs):
+        return super().__init__(**kwargs)
+
+    def __repr__(self):
+        return super().__repr__()
+
+    def __call__(self, value):
+        parsed_file = super().__call__(value)
+        try:
+            get_date_from_filename(parsed_file.name)
+        except ValueError:
+            raise argparse.ArgumentTypeError('Not a valid date')
+
+        return parsed_file
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Create a budget")
-    parser.add_argument("month_csv", help="Input CSV file with transactions for a month")
+    parser.add_argument("month_csv", help="Input CSV file with transactions for a month", type=TransactionsFileType())
     return parser.parse_args()
 
 def main():
     parsed_args = parse_args()
 
-    try:
-        with open(parsed_args.month_csv, 'r') as input_csv:
-            filename = input_csv.name.split('/')[-1]
-            date = datetime.datetime.strptime(filename[:len('2020-01-01')], '%Y-%m-%d')
-            headers = [h.strip() for h in input_csv.readline().split(',')]
-            csv_reader = csv.DictReader(input_csv, fieldnames=headers)
+    date = get_date_from_filename(parsed_args.month_csv.name)
+    headers = [h.strip() for h in parsed_args.month_csv.readline().split(',')]
+    csv_reader = csv.DictReader(parsed_args.month_csv, fieldnames=headers)
 
-            totals, transactions = bucket_transactions(csv_reader)
-            output = {"totals": totals, "transactions": transactions}
-    except IOError:
-        logging.exception("Cannot read the input file")
-        sys.exit()
+    totals, transactions = bucket_transactions(csv_reader)
+    output = {"totals": totals, "transactions": transactions}
 
     try:
         output_filename = f"{date.strftime('%Y-%m')}-output.json"
