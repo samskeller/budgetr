@@ -48,12 +48,6 @@ def handle_unknown_category(row, possible_categories, category_mapper):
 
     return category
 
-def add_category(internal_category, cap_one_category, description, category_mapper):
-    if cap_one_category not in category_mapper:
-        category_mapper[cap_one_category] = {}
-
-    category_mapper[cap_one_category][description] = internal_category
-
 def bucket_transactions(csv_reader):
     categories_blob = read_categories()
 
