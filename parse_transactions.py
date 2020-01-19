@@ -2,14 +2,23 @@
 
 import argparse
 import csv
+import datetime
 import json
 
-def load_categories():
+def read_categories():
     try:
         with open('categories.json', 'r') as input_categories:
             return json.loads(input_categories.read())
     except IOError:
         logging.exception("Cannot read the categories file")
+        sys.exit()
+
+def write_categories(categories_blob):
+    try:
+        with open('categories.json', 'w') as output_categories:
+            output_categories.write(json.dumps(categories_blob, indent=2, sort_keys=True))
+    except IOError:
+        logging.exception("Cannot write to the categories file")
         sys.exit()
 
 def parse_user_selected_category(prompt):
@@ -46,9 +55,10 @@ def add_category(internal_category, cap_one_category, description, category_mapp
     category_mapper[cap_one_category][description] = internal_category
 
 def bucket_transactions(csv_reader):
-    categories_blob = load_categories()
+    categories_blob = read_categories()
 
     totals = {category: 0 for category in categories_blob["internalCategories"]}
+    transactions = {category: [] for category in categories_blob["internalCategories"]}
     category_lookup = categories_blob["categoryMapper"]
     for row in csv_reader:
         if row["Credit"]:
@@ -66,18 +76,23 @@ def bucket_transactions(csv_reader):
         except KeyError:
             category = handle_unknown_category(row, categories_blob["internalCategories"], category_lookup)
 
-        totals[category] += float(row["Debit"])
+        totals[category] = round(totals[category] + float(row["Debit"]), 2)
+        transactions[category].append({"description": row["Description"], "amount": row["Debit"], "date": row["Transaction Date"]})
 
     # Write category_mapper back to categories.json
     categories_blob["categoryMapper"] = category_lookup
-    try:
-        with open('categories.json', 'w') as output_categories:
-            output_categories.write(json.dumps(categories_blob, indent=2, sort_keys=True))
-    except IOError:
-        logging.exception("Cannot write to the categories file")
-        sys.exit()
+    write_categories(categories_blob)
 
-    return totals
+    return (totals, transactions)
+
+def transaction_file_type(value):
+    date_string = value[:len('2020-01-01')]
+    try:
+        datetime.datetime.strptime(date_string, '%Y-%m-%d')
+    except ValueError:
+        raise argparse.ArgumentTypeError
+
+    return value
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Create a budget")
@@ -89,13 +104,24 @@ def main():
 
     try:
         with open(parsed_args.month_csv, 'r') as input_csv:
+            filename = input_csv.name.split('/')[-1]
+            date = datetime.datetime.strptime(filename[:len('2020-01-01')], '%Y-%m-%d')
             headers = [h.strip() for h in input_csv.readline().split(',')]
             csv_reader = csv.DictReader(input_csv, fieldnames=headers)
 
-            return bucket_transactions(csv_reader)
+            totals, transactions = bucket_transactions(csv_reader)
+            output = {"totals": totals, "transactions": transactions}
     except IOError:
         logging.exception("Cannot read the input file")
         sys.exit()
 
+    try:
+        output_filename = f"{date.strftime('%Y-%m')}-output.json"
+        with open(output_filename, 'w') as output_file:
+            output_file.write(json.dumps(output, indent=2, sort_keys=True))
+    except IOError:
+        logging.exception("Cannot write the output file")
+        sys.exit()
+
 if __name__ == '__main__':
-    print(main())
+    main()
