@@ -125,7 +125,7 @@ def output_month_plot(month, averages, month_string):
     tallest_bar = max(monthly_amounts + average_amounts)
     plt.ylim(0, tallest_bar + (tallest_bar / 10))
 
-    plt.savefig(f"{month_string}.png")
+    plt.savefig(f"outputs/{month_string}.png")
 
 def get_date_from_filename(filename):
     date_string = filename.split('/')[-1][:len('2020-01')]
@@ -165,7 +165,7 @@ def main():
 
     month_string = date.strftime('%Y-%m')
     try:
-        output_filename = f"{month_string}-output.json"
+        output_filename = f"outputs/{month_string}-output.json"
         with open(output_filename, 'w') as output_file:
             output = {"totals": monthly_totals, "transactions": transactions}
             output_file.write(json.dumps(output, indent=2, sort_keys=True))

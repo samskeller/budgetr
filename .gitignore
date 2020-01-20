@@ -4,3 +4,9 @@
 
 # virvualenv
 venv
+
+# Local files for running app
+categories.json
+totals.json
+inputs/
+outputs/
