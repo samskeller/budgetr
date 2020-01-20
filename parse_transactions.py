@@ -128,8 +128,8 @@ def output_month_plot(month, averages, month_string):
     plt.savefig(f"{month_string}.png")
 
 def get_date_from_filename(filename):
-    date_string = filename.split('/')[-1][:len('2020-01-01')]
-    return datetime.datetime.strptime(date_string, '%Y-%m-%d')
+    date_string = filename.split('/')[-1][:len('2020-01')]
+    return datetime.datetime.strptime(date_string, '%Y-%m')
 
 class TransactionsFileType(argparse.FileType):
     def __init__(self, **kwargs):
@@ -186,7 +186,7 @@ def main():
         totals_file.write(json.dumps(totals, indent=2, sort_keys=True))
         totals_file.truncate()
 
-    output_month_plot(averages, monthly_totals, month_string)
+    output_month_plot(monthly_totals, averages, month_string)
 
 if __name__ == '__main__':
     main()
