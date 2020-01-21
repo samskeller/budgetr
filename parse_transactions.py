@@ -84,7 +84,7 @@ def bucket_transactions(csv_reader):
     return (totals, transactions)
 
 def output_month_plot(month, averages, month_string):
-    categories = averages.keys()
+    categories = sorted(averages.keys())
     monthly_amounts = [round(month[category]) for category in categories]
     average_amounts = [round(averages[category]) for category in categories]
     x = np.arange(len(categories))  # the label locations
