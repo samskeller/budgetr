@@ -10,3 +10,5 @@ categories.json
 totals.json
 inputs/
 outputs/
+
+__pycache__/
