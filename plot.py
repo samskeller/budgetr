@@ -8,6 +8,12 @@ def output_month_plot(month, averages, month_string):
     categories = sorted(averages.keys())
     monthly_amounts = [round(month[category]) for category in categories]
     average_amounts = [round(averages[category]) for category in categories]
+
+    # Add a total in the left-most part of the plot
+    monthly_amounts.insert(0, sum(monthly_amounts))
+    average_amounts.insert(0, sum(average_amounts))
+    categories.insert(0, "Totals")
+
     x = np.arange(len(categories))  # the label locations
     width = 0.35  # the width of the bars
 

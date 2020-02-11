@@ -29,7 +29,7 @@ def handle_unknown_category(row, possible_categories, category_mapper):
     category_options_string = "\n".join([f"{num}: {category}" for num, category in enumerate(possible_categories, 1)])
     user_input_options = [str(i) for i in range(1, len(possible_categories) + 1)]
 
-    prompt = f"\nPick a category for {row['Description']} (add '+' suffix to save):\n{category_options_string}\n\n"
+    prompt = f"\nPick a category for ${row['Debit']} {row['Description']} (add '+' suffix to save):\n{category_options_string}\n\n"
     user_selected_category, add_category = parse_user_selected_category(prompt)
     while user_selected_category not in user_input_options:
         print("Sorry, that's not an option. Try again!")
