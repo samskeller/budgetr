@@ -3,19 +3,14 @@
 import csv
 import json
 
-from parse_transactions_utils import bucket_transactions
+from parse_transactions_utils import bucket_transactions_across_files
 from arg_parse_utils import parse_args, get_date_from_filename
 from plot import output_month_plot
 
 def main():
     parsed_args = parse_args()
-
-    with parsed_args.month_csv as month_csv:
-        date = get_date_from_filename(parsed_args.month_csv.name)
-        headers = [h.strip() for h in parsed_args.month_csv.readline().split(',')]
-        csv_reader = csv.DictReader(parsed_args.month_csv, fieldnames=headers)
-
-        monthly_totals, transactions = bucket_transactions(csv_reader)
+    date = get_date_from_filename(parsed_args.month_csvs[0].name)
+    monthly_totals, transactions = bucket_transactions_across_files(parsed_args.month_csvs)
 
     month_string = date.strftime('%Y-%m')
     try:

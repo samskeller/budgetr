@@ -24,6 +24,6 @@ class TransactionsFileType(argparse.FileType):
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Create a budget")
-    parser.add_argument("month_csv", help="Input CSV file with transactions for a month", type=TransactionsFileType())
     parser.add_argument("totals_file", help="Monthly budget totals", type=argparse.FileType('r+'))
+    parser.add_argument("month_csvs", help="Input CSV files with transactions for a month", type=TransactionsFileType(), nargs='+')
     return parser.parse_args()

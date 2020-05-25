@@ -1,3 +1,4 @@
+import csv
 import json
 
 def read_categories():
@@ -43,11 +44,7 @@ def handle_unknown_category(row, possible_categories, category_mapper):
 
     return category
 
-def bucket_transactions(csv_reader):
-    categories_blob = read_categories()
-
-    totals = {category: 0 for category in categories_blob["internalCategories"]}
-    transactions = {category: [] for category in categories_blob["internalCategories"]}
+def bucket_transactions(csv_reader, categories_blob, totals, transactions):
     category_lookup = categories_blob["categoryMapper"]
     for row in csv_reader:
         if row["Credit"]:
@@ -70,6 +67,18 @@ def bucket_transactions(csv_reader):
 
     # Write category_mapper back to categories.json
     categories_blob["categoryMapper"] = category_lookup
+
+def bucket_transactions_across_files(month_csvs):
+    categories_blob = read_categories()
+
+    totals = {category: 0 for category in categories_blob["internalCategories"]}
+    transactions = {category: [] for category in categories_blob["internalCategories"]}
+
+    for month_csv in month_csvs:
+        headers = [h.strip() for h in month_csv.readline().split(',')]
+        csv_reader = csv.DictReader(month_csv, fieldnames=headers)
+        bucket_transactions(csv_reader, categories_blob, totals, transactions)
     write_categories(categories_blob)
 
     return (totals, transactions)
+
